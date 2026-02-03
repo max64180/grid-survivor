@@ -264,7 +264,7 @@
             margin-bottom: 10px;
             font-weight: bold;
             font-size: 0.9em;
-            min-height: 40px;
+            height: 60px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -366,7 +366,7 @@
 
         .game-over-content {
             background: white;
-            padding: 40px;
+            padding: 25px 20px;
             border-radius: 20px;
             text-align: center;
             max-width: 420px;
@@ -381,8 +381,8 @@
 
         .game-over-content h2 {
             color: #ef4444;
-            font-size: 2.5em;
-            margin-bottom: 20px;
+            font-size: 2em;
+            margin-bottom: 15px;
         }
 
         .final-stats {
@@ -414,11 +414,33 @@
         .bonuses-container {
             display: flex;
             gap: 4px;
-            justify-content: center;
+            justify-content: flex-start;
             margin-bottom: 6px;
             flex-wrap: nowrap;
             align-items: center;
             overflow-x: auto;
+            overflow-y: hidden;
+            padding: 4px 2px;
+            position: relative;
+            /* Gradient fade per indicare scroll */
+            -webkit-mask-image: linear-gradient(to right, transparent 0%, black 20px, black calc(100% - 20px), transparent 100%);
+            mask-image: linear-gradient(to right, transparent 0%, black 20px, black calc(100% - 20px), transparent 100%);
+        }
+
+        /* Scrollbar personalizzata per bonus */
+        .bonuses-container::-webkit-scrollbar {
+            height: 4px;
+        }
+        .bonuses-container::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.05);
+            border-radius: 10px;
+        }
+        .bonuses-container::-webkit-scrollbar-thumb {
+            background: rgba(102, 126, 234, 0.5);
+            border-radius: 10px;
+        }
+        .bonuses-container::-webkit-scrollbar-thumb:hover {
+            background: rgba(102, 126, 234, 0.8);
         }
 
         .bonus-card {
@@ -687,16 +709,19 @@
         .leaderboard-entry {
             display: flex;
             justify-content: space-between;
-            padding: 15px;
-            margin: 10px 0;
+            padding: 8px 12px;
+            margin: 5px 0;
             background: linear-gradient(135deg, #f0f0f0 0%, #e0e0e0 100%);
-            border-radius: 10px;
+            border-radius: 8px;
             align-items: center;
+            font-size: 0.85em;
         }
 
         .leaderboard-entry.top1 {
             background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-            color: white; font-weight: bold; font-size: 1.1em;
+            color: white; 
+            font-weight: bold; 
+            font-size: 0.95em;
         }
 
         .leaderboard-entry.top2 {
@@ -707,6 +732,28 @@
         .leaderboard-entry.top3 {
             background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
             color: white;
+        }
+
+        /* Leaderboard list with scrolling */
+        #leaderboard-list {
+            max-height: 400px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            margin: 15px 0;
+            padding-right: 5px;
+        }
+
+        /* Scrollbar styling for leaderboard */
+        #leaderboard-list::-webkit-scrollbar {
+            width: 6px;
+        }
+        #leaderboard-list::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        #leaderboard-list::-webkit-scrollbar-thumb {
+            background: #667eea;
+            border-radius: 10px;
         }
 
         /* NAME INPUT */
@@ -807,6 +854,9 @@
         </div>
 
         <div class="bonuses-container" id="bonuses"></div>
+        <div id="bonus-scroll-hint" style="text-align: center; font-size: 0.7em; color: #999; margin-top: -4px; margin-bottom: 4px; display: none;">
+            👈 Scorri per vedere tutti i bonus 👉
+        </div>
 
         <!-- Griglia + timer perimetrale + combo overlay -->
         <div class="grid-wrap" id="grid-wrap">
@@ -859,10 +909,7 @@
             <h2>🏆 CLASSIFICA</h2>
             <div id="firebase-status" style="font-size: 0.75em; color: #666; margin-bottom: 10px; text-align: center;"></div>
             <div id="leaderboard-list"></div>
-            <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
-                <button class="primary" onclick="closeLeaderboard()">Gioca Ancora</button>
-                <button class="secondary" onclick="confirmResetLeaderboard()" style="padding: 10px 16px; font-size: 0.85em;">🗑️ Reset Classifica</button>
-            </div>
+            <button class="primary" onclick="closeLeaderboard()" style="width: 100%; max-width: 250px;">Gioca Ancora</button>
         </div>
     </div>
 
@@ -887,17 +934,15 @@
     // ═══════════════════════════════════════════════════════════════════════════
     // FIREBASE CONFIGURATION
     // ═══════════════════════════════════════════════════════════════════════════
-    // ⚠️ SOSTITUISCI QUESTI VALORI CON I TUOI (vedi GUIDA_PUBBLICAZIONE.md)
     const firebaseConfig = {
-  apiKey: "AIzaSyDamBv3u0gvX6zdA7w0LUL75JTRlgt6MtU",
-  authDomain: "grid-survivor.firebaseapp.com",
-  databaseURL: "https://grid-survivor-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "grid-survivor",
-  storageBucket: "grid-survivor.firebasestorage.app",
-  messagingSenderId: "65681965353",
-  appId: "1:65681965353:web:a5ff81cfcbc2657308f738"
-};
-
+        apiKey: "AIzaSyDamBv3u0gvX6zdA7w0LUL75JTRlgt6MtU",
+        authDomain: "grid-survivor.firebaseapp.com",
+        databaseURL: "https://grid-survivor-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "grid-survivor",
+        storageBucket: "grid-survivor.firebasestorage.app",
+        messagingSenderId: "65681965353",
+        appId: "1:65681965353:web:a5ff81cfcbc2657308f738"
+    };
 
     // Inizializza Firebase
     let database = null;
@@ -1819,6 +1864,19 @@
 
             container.appendChild(card);
         });
+
+        // Mostra hint se la barra è scrollabile
+        const bonusContainer = document.getElementById('bonuses');
+        const hint = document.getElementById('bonus-scroll-hint');
+        if (bonusContainer.scrollWidth > bonusContainer.clientWidth) {
+            hint.style.display = 'block';
+            // Nascondi dopo 3 secondi
+            setTimeout(() => {
+                hint.style.display = 'none';
+            }, 3000);
+        } else {
+            hint.style.display = 'none';
+        }
     }
 
     function activateBonus(uniqueId) {
