@@ -433,7 +433,7 @@
             text-shadow: 0 0 10px rgba(251, 191, 36, 0.9),
                          0 0 20px rgba(251, 191, 36, 0.6);
             pointer-events: none;
-            z-index: 100;
+            z-index: 2500; /* Sopra le notifiche bonus (z-index: 2000) */
             animation: floatScore 1.2s ease-out forwards;
             left: 50%;
             top: 50%;
@@ -447,6 +447,26 @@
             text-shadow: 0 0 15px rgba(245, 158, 11, 1),
                          0 0 30px rgba(245, 158, 11, 0.8),
                          0 0 45px rgba(245, 158, 11, 0.5);
+        }
+
+        /* Responsive: font più piccolo su mobile */
+        @media (max-width: 768px) {
+            .position-score {
+                font-size: 1em; /* Ridotto da 1.4em */
+            }
+            .position-score.high-value {
+                font-size: 1.3em; /* Ridotto da 1.8em */
+            }
+        }
+
+        /* Responsive: font ancora più piccolo su schermi molto piccoli */
+        @media (max-width: 480px) {
+            .position-score {
+                font-size: 0.85em;
+            }
+            .position-score.high-value {
+                font-size: 1.1em;
+            }
         }
 
         @keyframes floatScore {
